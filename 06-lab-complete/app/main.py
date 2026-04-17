@@ -130,8 +130,7 @@ async def context_middleware(request: Request, call_next):
 # ─────────────────────────────────────────────────────────
 # Models
 # ─────────────────────────────────────────────────────────
-class AskRequest(BaseModel):
-    question: str = Field(..., min_length=1, max_length=1000)
+# AskRequest removed for PowerShell compatibility (using Query Parameters)
 
 class AskResponse(BaseModel):
     question: str
@@ -150,7 +149,7 @@ def info():
         "version": settings.app_version,
         "environment": settings.environment,
         "endpoints": {
-            "ask": "POST /ask (requires X-API-Key)",
+            "ask": "POST /ask?question=... (requires X-API-Key)",
             "health": "GET /health",
             "ready": "GET /ready",
             "metrics": "GET /metrics (requires X-API-Key)"
@@ -204,7 +203,7 @@ def metrics(user_id: str = Depends(verify_api_key)):
 
 @app.post("/ask", response_model=AskResponse)
 async def ask(
-    body: AskRequest,
+    question: str, 
     user_id: str = Depends(verify_api_key)
 ):
     # 1. Rate Limiting (Redis-based)
@@ -212,7 +211,7 @@ async def ask(
     
     # 2. Cost Guard (Redis-based)
     # Giả lập token count
-    in_tokens = len(body.question.split()) * 2
+    in_tokens = len(question.split()) * 2
     check_and_record_cost(user_id, input_tokens=in_tokens)
     
     # 3. Stateless Chat History (Redis-based)
@@ -226,20 +225,20 @@ async def ask(
     
     # 4. Call LLM (Mock)
     # Trong thực tế sẽ gửi history kèm theo request
-    answer = llm_ask(body.question)
+    answer = llm_ask(question)
     
     # 5. Save History & Record Out-tokens
     out_tokens = len(answer.split()) * 2
     check_and_record_cost(user_id, output_tokens=out_tokens)
     
     if redis_client:
-        new_message = {"q": body.question, "a": answer, "ts": time.time()}
+        new_message = {"q": question, "a": answer, "ts": time.time()}
         redis_client.lpush(history_key, json.dumps(new_message))
         redis_client.ltrim(history_key, 0, 19) # Giữ tối đa 20 tin nhắn
         redis_client.expire(history_key, 3600) # Expire sau 1h
     
     return AskResponse(
-        question=body.question,
+        question=question,
         answer=answer,
         model=settings.llm_model,
         timestamp=datetime.now(timezone.utc).isoformat()
