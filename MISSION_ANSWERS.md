@@ -92,6 +92,18 @@ graph TD
 - **Hoạt động**: Đã deploy thành công Agent lên Railway qua GitHub Integration.
 - **Screenshot**: ![Railway Deployment](image.png)
 
+### Exercise 3.2: Render vs Railway Comparison
+- **Railway (`railway.toml`)**:
+    - Ưu điểm: Cực kỳ đơn giản, tự động detect mọi thứ (Nixpacks). Phù hợp cho việc deploy nhanh 1 service.
+    - Hạn chế: Ít can thiệp sâu vào cấu trúc infrastructure phức tạp nếu chỉ dùng config đơn giản.
+- **Render (`render.yaml`)**:
+    - Ưu điểm: Cấu hình dưới dạng Infrastructure as Code (IaC) mạnh mẽ. Cho phép định nghĩa toàn bộ stack (Web + Redis + DB) trong cùng 1 file Blueprint. 
+    - Đặc biệt: Có tính năng tự sinh Secret (`generateValue`) và quản lý IP allowlist rất chi tiết.
+
+### Exercise 3.3: GCP Cloud Run Analysis
+- **CI/CD (`cloudbuild.yaml`)**: Pipeline gồm 4 bước tự động: Chạy Unit Test -> Build Docker Image -> Push lên Container Registry -> Deploy lên Cloud Run. Điều này giúp đảm bảo code lỗi không bao giờ được deploy.
+- **IaC (`service.yaml`)**: Cho phép kiểm soát tài nguyên cực kỳ chi tiết (CPU, Memory limits), cấu hình Scaling (min/max instances) để tránh "Cold Start" và quản lý bảo mật qua Secret Manager.
+
 ---
 
 ## Part 4: API Security
