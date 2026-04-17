@@ -87,9 +87,7 @@ python app.py
 
 Test:
 ```bash
-curl http://localhost:8000/ask -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Hello"}'
+curl.exe -X POST http://localhost:8000/ask -H "Content-Type: application/json" -d '{"question": "Hello"}'
 ```
 
 **Quan sát:** Nó chạy! Nhưng có production-ready không?
@@ -158,9 +156,7 @@ docker build -f 02-docker/develop/Dockerfile -t my-agent:develop .
 docker run -p 8000:8000 my-agent:develop
 
 # Test
-curl http://localhost:8000/ask -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"question": "What is Docker?"}'
+curl.exe -X POST http://localhost:8000/ask -H "Content-Type: application/json" -d '{"question": "What is Docker?"}'
 ```
 
 **Quan sát:** Image size là bao nhiêu?
@@ -198,12 +194,10 @@ Services nào được start? Chúng communicate thế nào?
 Test:
 ```bash
 # Health check
-curl http://localhost/health
+curl.exe http://localhost/health
 
 # Agent endpoint
-curl http://localhost/ask -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Explain microservices"}'
+curl.exe -X POST http://localhost/ask -H "Content-Type: application/json" -d '{"question": "Explain microservices"}'
 ```
 
 ###  Checkpoint 2
@@ -275,12 +269,10 @@ railway domain
 Test:
 ```bash
 # Health check
-curl http://student-agent-domain/health
+curl.exe http://student-agent-domain/health
 
 # Agent endpoint
-curl http://studen-agent-domain/ask -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"question": ""}'
+curl.exe -X POST http://studen-agent-domain/ask -H "Content-Type: application/json" -d '{"question": "Hello Cloud"}'
 ```
 
 ###  Exercise 3.2: Deploy Render (15 phút)
@@ -347,15 +339,10 @@ Test:
 python app.py
 
 #  Không có key
-curl http://localhost:8000/ask -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Hello"}'
+curl.exe -X POST http://localhost:8000/ask -H "Content-Type: application/json" -d '{"question": "Hello"}'
 
 #  Có key
-curl http://localhost:8000/ask -X POST \
-  -H "X-API-Key: secret-key-123" \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Hello"}'
+curl.exe -X POST http://localhost:8000/ask -H "X-API-Key: secret-key-123" -H "Content-Type: application/json" -d '{"question": "Hello"}'
 ```
 
 ###  Exercise 4.2: JWT authentication (Advanced)
@@ -370,18 +357,13 @@ cd ../production
 ```bash
 python app.py
 
-curl http://localhost:8000/token -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"username": "admin", "password": "secret"}'
+curl.exe -X POST http://localhost:8000/token -H "Content-Type: application/json" -d '{"username": "admin", "password": "secret"}'
 ```
 
 3. Dùng token để gọi API:
 ```bash
 TOKEN="<token_từ_bước_2>"
-curl http://localhost:8000/ask -X POST \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Explain JWT"}'
+curl.exe -X POST http://localhost:8000/ask -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"question": "Explain JWT"}'
 ```
 
 ###  Exercise 4.3: Rate limiting
@@ -395,10 +377,7 @@ Test:
 ```bash
 # Gọi liên tục 20 lần
 for i in {1..20}; do
-  curl http://localhost:8000/ask -X POST \
-    -H "Authorization: Bearer $TOKEN" \
-    -H "Content-Type: application/json" \
-    -d '{"question": "Test '$i'"}'
+  curl.exe -X POST http://localhost:8000/ask -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "{\"question\": \"Test $i\"}"
   echo ""
 done
 ```
@@ -542,9 +521,7 @@ python app.py &
 PID=$!
 
 # Gửi request
-curl http://localhost:8000/ask -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Long task"}' &
+curl.exe -X POST http://localhost:8000/ask -H "Content-Type: application/json" -d '{"question": "Long task"}' &
 
 # Ngay lập tức kill
 kill -TERM $PID
@@ -599,9 +576,7 @@ Test:
 ```bash
 # Gọi 10 requests
 for i in {1..10}; do
-  curl http://localhost/ask -X POST \
-    -H "Content-Type: application/json" \
-    -d '{"question": "Request '$i'"}'
+  curl.exe -X POST http://localhost/ask -H "Content-Type: application/json" -d "{\"question\": \"Request $i\"}"
 done
 
 # Check logs — requests được phân tán
@@ -827,11 +802,9 @@ def check_budget(user_id: str):
 docker compose up --scale agent=3
 
 # Test all endpoints
-curl http://localhost/health
-curl http://localhost/ready
-curl -H "X-API-Key: secret" http://localhost/ask -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Hello", "user_id": "user1"}'
+curl.exe http://localhost/health
+curl.exe http://localhost/ready
+curl.exe -X POST http://localhost/ask -H "X-API-Key: secret" -H "Content-Type: application/json" -d '{"question": "Hello", "user_id": "user1"}'
 ```
 
 #### Step 10: Deploy (10 phút)

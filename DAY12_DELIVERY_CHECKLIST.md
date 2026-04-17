@@ -117,16 +117,13 @@ Railway / Render / Cloud Run
 
 ### Health Check
 ```bash
-curl https://your-agent.railway.app/health
+curl.exe https://your-agent.railway.app/health
 # Expected: {"status": "ok"}
 ```
 
 ### API Test (with authentication)
 ```bash
-curl -X POST https://your-agent.railway.app/ask \
-  -H "X-API-Key: YOUR_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"user_id": "test", "question": "Hello"}'
+curl.exe -X POST https://your-agent.railway.app/ask -H "X-API-Key: YOUR_KEY" -H "Content-Type: application/json" -d '{"user_id": "test", "question": "Hello"}'
 ```
 
 ## Environment Variables Set
@@ -162,21 +159,19 @@ Before submitting, verify your deployment:
 
 ```bash
 # 1. Health check
-curl https://your-app.railway.app/health
+curl.exe https://your-app.railway.app/health
 
 # 2. Authentication required
-curl https://your-app.railway.app/ask
+curl.exe https://your-app.railway.app/ask
 # Should return 401
 
 # 3. With API key works
-curl -H "X-API-Key: YOUR_KEY" https://your-app.railway.app/ask \
-  -X POST -d '{"user_id":"test","question":"Hello"}'
+curl.exe -X POST https://your-app.railway.app/ask -H "X-API-Key: YOUR_KEY" -H "Content-Type: application/json" -d '{"user_id":"test","question":"Hello"}'
 # Should return 200
 
 # 4. Rate limiting
 for i in {1..15}; do 
-  curl -H "X-API-Key: YOUR_KEY" https://your-app.railway.app/ask \
-    -X POST -d '{"user_id":"test","question":"test"}'; 
+  curl.exe -X POST https://your-app.railway.app/ask -H "X-API-Key: YOUR_KEY" -H "Content-Type: application/json" -d '{"user_id":"test","question":"test"}'
 done
 # Should eventually return 429
 ```

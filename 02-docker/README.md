@@ -33,7 +33,7 @@ docker images agent-develop
 docker run -p 8000:8000 agent-develop
 
 # Test
-curl http://localhost:8000/health
+curl.exe http://localhost:8000/health
 ```
 
 ---
@@ -63,7 +63,7 @@ docker compose -f 02-docker/production/docker-compose.yml up
 docker compose -f 02-docker/production/docker-compose.yml ps
 
 # Test agent qua Nginx
-curl http://localhost/health
+curl.exe http://localhost/health
 
 # Dừng toàn bộ
 docker compose -f 02-docker/production/docker-compose.yml down

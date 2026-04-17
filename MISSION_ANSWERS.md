@@ -41,7 +41,6 @@ Sử dụng `.env` (Environment Variables) cực kỳ quan trọng vì:
 
 ### Exercise 2.1: Dockerfile questions
 
-
 1.  **Base image là gì?**
     *   **Trả lời**: `python:3.11` 
     *   **Giải thích**: Đây là bản phân phối Python đầy đủ (gần 1GB), chứa đầy đủ các công cụ build và script cần thiết để chạy ứng dụng Python.
@@ -56,7 +55,7 @@ Sử dụng `.env` (Environment Variables) cực kỳ quan trọng vì:
 
 4.  **CMD vs ENTRYPOINT khác nhau thế nào?**
     *   **ENTRYPOINT**: Giống như "Lệnh thực thi chính" của container (thường là cố định). Nếu bạn dùng Entrypoint là `python`, thì container này sinh ra chỉ để chạy python.
-    *   **CMD** (dòng 30): Là "Tham số mặc định" hoặc "Lệnh mặc định". Trong Dockerfile này, `CMD ["python", "app.py"]` nghĩa là mặc định sẽ chạy app.
+    *   **CMD**: Là "Tham số mặc định" hoặc "Lệnh mặc định". Trong Dockerfile này, `CMD ["python", "app.py"]` nghĩa là mặc định sẽ chạy app.
     *   **Điểm khác biệt chính**: `CMD` rất dễ bị ghi đè. Ví dụ nếu bạn chạy `docker run my-agent:develop bash`, thì lệnh `bash` sẽ thay thế hoàn toàn `python app.py`. Còn `ENTRYPOINT` thì khó bị ghi đè hơn và thường được dùng để biến container thành một file thực thi (executable).
 
 ### Exercise 2.2: Build và run
@@ -90,7 +89,7 @@ graph TD
 ### Exercise 3.1: Railway deployment
 - **URL**: [https://day12-nguyentricao-production.up.railway.app](https://day12-nguyentricao-production.up.railway.app)
 - **Hoạt động**: Đã deploy thành công Agent lên Railway qua GitHub Integration.
-- **Screenshot**: ![Railway Deployment](image.png)
+- **Screenshot**: ![Railway Deployment](./screenshots/image.png)
 
 ### Exercise 3.2: Render vs Railway Comparison
 - **Railway (`railway.toml`)**:
@@ -100,42 +99,73 @@ graph TD
     - Ưu điểm: Cấu hình dưới dạng Infrastructure as Code (IaC) mạnh mẽ. Cho phép định nghĩa toàn bộ stack (Web + Redis + DB) trong cùng 1 file Blueprint. 
     - Đặc biệt: Có tính năng tự sinh Secret (`generateValue`) và quản lý IP allowlist rất chi tiết.
 
-### Exercise 3.3: GCP Cloud Run Analysis
-- **CI/CD (`cloudbuild.yaml`)**: Pipeline gồm 4 bước tự động: Chạy Unit Test -> Build Docker Image -> Push lên Container Registry -> Deploy lên Cloud Run. Điều này giúp đảm bảo code lỗi không bao giờ được deploy.
-- **IaC (`service.yaml`)**: Cho phép kiểm soát tài nguyên cực kỳ chi tiết (CPU, Memory limits), cấu hình Scaling (min/max instances) để tránh "Cold Start" và quản lý bảo mật qua Secret Manager.
-
 ---
 
 ## Part 4: API Security
 
 ### Exercise 4.1: API Key Validation
-- Header sử dụng: `X-API-Key`
-- Cách thức: Middleware kiểm tra header request có khớp với `AGENT_API_KEY` trong environment hay không.
+
+#### 1. API key được check ở đâu?
+*   **Khai báo header**: Key được định nghĩa là một header có tên `X-API-Key` thông qua class `APIKeyHeader`.
+*   **Logic kiểm tra**: Nằm trong function `verify_api_key`.
+*   **Áp dụng**: Được inject vào endpoint `/ask` bằng Dependency Injection: `_key: str = Depends(verify_api_key)`.
+
+#### 2. Điều gì xảy ra nếu sai key?
+Hệ thống sẽ trả về các mã lỗi HTTP tương ứng:
+*   **Nếu không gửi key (thiếu header)**: Trả về lỗi **`401 Unauthorized`**.
+*   **Nếu gửi key nhưng sai giá trị**: Trả về lỗi **`403 Forbidden`**.
+
+#### 3. Làm sao rotate key?
+- Key được đọc từ biến môi trường `AGENT_API_KEY`.
+- **Cách thực hiện**: Thay đổi giá trị của biến `AGENT_API_KEY` trong thiết lập của Cloud (Render/Railway) hoặc file `.env` và restart lại server.
+
+### Exercise 4.2: JWT Authentication (Advanced)
+
+#### 1. JWT Flow trong hệ thống:
+*   **Bước 1 (Auth)**: Người dùng gửi `username` và `password` đến endpoint `/auth/token`.
+*   **Bước 2 (Sign)**: Server kiểm tra thông tin, nếu đúng sẽ ký một chuỗi JWT chứa `role` và `exp`.
+*   **Bước 3 (Bearer)**: Client đính kèm Token vào header `Authorization: Bearer <TOKEN>`.
+*   **Bước 4 (Verify)**: API Gateway giải mã và kiểm tra chữ ký Token trước khi cho phép truy cập.
+
+#### 2. Tại sao JWT được dùng cho Production?
+*   **Stateless**: Server không cần lưu Session, giúp tăng khả năng mở rộng.
+*   **Bảo mật**: Chống giả mạo thông tin nhờ chữ ký điện tử.
 
 ### Exercise 4.3: Rate Limiter
-- **Thuật toán**: Sliding Window Counter.
-- **Cơ chế**: Sử dụng `deque` để lưu timestamp các request trong vòng 60 giây. Nếu vượt quá `max_requests`, trả về lỗi 429.
-- **Phân quyền**: Admin (`ADMIN_API_KEY`) có limit cao hơn (100 req/min) so với User thông thường (10 req/min).
+*   **Algorithm**: **Sliding Window Counter**. Dùng `deque` để lưu timestamp request.
+*   **Limit**: 
+    - User `student`: 10 requests/phút.
+    - User `teacher` (Admin): 100 requests/phút.
+*   **Phân quyền**: Dựa vào `role` trong JWT để áp dụng instance RateLimiter tương ứng.
 
 ### Exercise 4.4: Cost Guard
-- **Cơ chế**: 
-    1. Kiểm tra budget khả dụng trước mỗi lượt gọi LLM (`check_budget`).
-    2. Nếu vượt quá Daily Budget ($1.0/user) hoặc Global Budget ($10.0), sẽ block request (402 Payment Required).
-    3. Sau khi LLM trả về, tính toán cost dựa trên số token thực tế và cập nhật vào record (`record_usage`).
+*   **Cơ chế**:
+    1. Kiểm tra budget trước khi gọi LLM (`check_budget`).
+    2. Nếu vượt ngưỡng Daily Budget ($1.0/user), hệ thống trả về lỗi **402 Payment Required**.
+    3. Ghi nhận chi phí dựa trên số lượng token (`record_usage`).
 
 ---
 
 ## Part 5: Scaling & Reliability
 
 ### Exercise 5.1: Health checks
-- **Endpoint**: `/health` trả về uptime và trạng thái cơ bản.
-- **Ready probe**: `/ready` kiểm tra kết nối đến các dependency (như Redis). Nếu Redis chết, Agent sẽ báo chưa sẵn sàng.
+- **Liveness Probe (`/health`)**: Kiểm tra process Agent có đang chạy ổn định không (Uptime, Memory).
+- **Readiness Probe (`/ready`)**: Kiểm tra Agent đã sẵn sàng nhận traffic chưa (Model đã nạp, Redis đã kết nối).
 
-### Exercise 5.2: Stateless vs Stateful
-- **Develop (Stateful)**: Lưu lịch sử chat trong biến global `dict`. Nếu chạy 10 instances, user sẽ bị mất lịch sử nếu request tiếp theo rơi vào instance khác.
-- **Production (Stateless)**: Lưu session/history vào **Redis**. Mọi instance đều có thể truy cập cùng một data, cho phép scale ngang thoải mái.
+### Exercise 5.2: Graceful shutdown
+- **Cơ chế**: Bắt tín hiệu `SIGTERM`.
+- **Logic**: 
+    1. Đóng Readiness probe (trả về 503).
+    2. Đợi các request đang dở dang (`in-flight`) hoàn thành.
+    3. Test thực tế: Request dài vẫn hoàn thành 100% dù server nhận lệnh tắt giữa chừng.
 
-### Exercise 5.3: Horizontal Scaling
-- Việc tăng số lượng node (Replica) giúp:
-    1. **Tăng tải (Throughput)**: Xử lý được nhiều user cùng lúc hơn.
-    2. **High Availability**: Nếu một node lỗi, platform sẽ tự động điều hướng sang node khác, người dùng không nhận ra sự cố.
+### Exercise 5.3: Stateless design
+- **Vấn đề**: Lưu chat history trong memory khiến việc scale ngang bị lỗi dữ liệu (Instance A không thấy history của Instance B).
+- **Giải pháp**: Chuyển Session/History sang **Redis**. Đây là yêu cầu bắt buộc để Web App có thể chạy trên nhiều bản sao (Replica).
+
+### Exercise 5.4: Load balancing
+- **Docker Compose**: Dùng `--scale agent=3` để chạy 3 node Agent.
+- **Nginx**: Điều phối traffic cân bằng giữa 3 node. Nếu 1 node bị lỗi, Nginx tự động bỏ qua node đó và gửi request tới các node còn lại.
+
+### Exercise 5.5: Test stateless
+- **Chứng minh**: Khi kill ngẫu nhiên một instance, người dùng vẫn có thể tiếp tục cuộc hội thoại mà không bị mất dữ liệu, vì history đã được lưu tập trung tại Redis.

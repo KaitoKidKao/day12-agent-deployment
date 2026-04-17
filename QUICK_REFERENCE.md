@@ -513,28 +513,22 @@ venv/
 
 ```bash
 # GET request
-curl http://localhost:8000/health
+curl.exe http://localhost:8000/health
 
-# POST with JSON
-curl -X POST http://localhost:8000/ask \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: secret" \
-  -d '{"question": "Hello"}'
+# POST with JSON (PowerShell safe syntax)
+curl.exe -X POST http://localhost:8000/ask -H "Content-Type: application/json" -H "X-API-Key: secret" -d '{"question": "Hello"}'
 
 # With Bearer token
-curl -X POST http://localhost:8000/ask \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Hello"}'
+curl.exe -X POST http://localhost:8000/ask -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"question": "Hello"}'
 
 # Save response to file
-curl http://localhost:8000/ask -o response.json
+curl.exe http://localhost:8000/ask -o response.json
 
 # Show response headers
-curl -i http://localhost:8000/health
+curl.exe -i http://localhost:8000/health
 
 # Follow redirects
-curl -L http://localhost:8000/redirect
+curl.exe -L http://localhost:8000/redirect
 ```
 
 ### HTTPie (more user-friendly)

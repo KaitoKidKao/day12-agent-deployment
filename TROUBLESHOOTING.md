@@ -454,10 +454,10 @@ Health check failed: GET /health returned 404
 1. **Check header name:**
    ```bash
    # ✅ Correct
-   curl -H "X-API-Key: secret" http://localhost:8000/ask
+   curl.exe -H "X-API-Key: secret" http://localhost:8000/ask
    
    # ❌ Wrong
-   curl -H "API-Key: secret" http://localhost:8000/ask
+   curl.exe -H "API-Key: secret" http://localhost:8000/ask
    ```
 
 2. **Check environment variable:**
@@ -481,9 +481,7 @@ Health check failed: GET /health returned 404
 
 1. **Get new token:**
    ```bash
-   curl -X POST http://localhost:8000/token \
-     -H "Content-Type: application/json" \
-     -d '{"username": "admin", "password": "secret"}'
+   curl.exe -X POST http://localhost:8000/token -H "Content-Type: application/json" -d '{"username": "admin", "password": "secret"}'
    ```
 
 2. **Increase expiration time:**
@@ -494,10 +492,10 @@ Health check failed: GET /health returned 404
 3. **Check token format:**
    ```bash
    # ✅ Correct
-   curl -H "Authorization: Bearer <token>"
+   curl.exe -H "Authorization: Bearer <token>"
    
    # ❌ Wrong
-   curl -H "Authorization: <token>"
+   curl.exe -H "Authorization: <token>"
    ```
 
 ---
@@ -637,7 +635,7 @@ Health check failed: GET /health returned 404
 
 1. **Test endpoint manually:**
    ```bash
-   curl http://localhost:8000/health
+   curl.exe http://localhost:8000/health
    ```
 
 2. **Check response format:**
@@ -761,7 +759,7 @@ Health check failed: GET /health returned 404
 
 4. **Test with curl:**
    ```bash
-   curl -v https://your-app.railway.app/health
+   curl.exe -v https://your-app.railway.app/health
    ```
 
 ---

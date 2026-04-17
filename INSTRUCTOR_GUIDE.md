@@ -86,12 +86,10 @@ Client → Nginx (port 80) → Agent (port 8000) → Redis (port 6379)
 **Verification:**
 ```bash
 # Test student's URL
-curl https://student-app.railway.app/health
+curl.exe https://student-app.railway.app/health
 # Should return: {"status": "ok"}
 
-curl -X POST https://student-app.railway.app/ask \
-  -H "Content-Type: application/json" \
-  -d '{"question": "test"}'
+curl.exe -X POST https://student-app.railway.app/ask -H "Content-Type: application/json" -d '{"question": "test"}'
 # Should return valid response
 ```
 
@@ -169,8 +167,8 @@ if __name__ == "__main__":
 
 ```bash
 # Test health checks
-curl http://localhost:8000/health  # Should return 200
-curl http://localhost:8000/ready   # Should return 200 or 503
+curl.exe http://localhost:8000/health  # Should return 200
+curl.exe http://localhost:8000/ready   # Should return 200 or 503
 
 # Test graceful shutdown
 python app.py &
@@ -199,23 +197,14 @@ docker compose up --scale agent=3
 **Test:**
 ```bash
 # Test basic functionality
-curl -X POST $URL/ask \
-  -H "X-API-Key: $KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"user_id": "test", "question": "Hello"}'
+curl.exe -X POST $URL/ask -H "X-API-Key: $KEY" -H "Content-Type: application/json" -d '{"user_id": "test", "question": "Hello"}'
 
 # Test conversation
-curl -X POST $URL/ask \
-  -H "X-API-Key: $KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"user_id": "test", "question": "What did I just say?"}'
+curl.exe -X POST $URL/ask -H "X-API-Key: $KEY" -H "Content-Type: application/json" -d '{"user_id": "test", "question": "What did I just say?"}'
 # Should reference previous message
 
 # Test error handling
-curl -X POST $URL/ask \
-  -H "X-API-Key: $KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"invalid": "data"}'
+curl.exe -X POST $URL/ask -H "X-API-Key: $KEY" -H "Content-Type: application/json" -d '{"invalid": "data"}'
 # Should return 422 with clear error message
 ```
 
@@ -265,14 +254,11 @@ grep -q "Settings" app/config.py
 
 ```bash
 # Test auth
-curl $URL/ask  # Should return 401
+curl.exe $URL/ask  # Should return 401
 
 # Test rate limiting
 for i in {1..20}; do
-  curl -X POST $URL/ask \
-    -H "X-API-Key: $KEY" \
-    -H "Content-Type: application/json" \
-    -d '{"user_id": "test", "question": "test"}'
+  curl.exe -X POST $URL/ask -H "X-API-Key: $KEY" -H "Content-Type: application/json" -d '{"user_id": "test", "question": "test"}'
 done
 # Should eventually return 429
 
@@ -296,8 +282,8 @@ grep -r "api_key.*=" app/  # Should only find env var reads
 
 ```bash
 # Health checks
-curl $URL/health  # 200
-curl $URL/ready   # 200
+curl.exe $URL/health  # 200
+curl.exe $URL/ready   # 200
 
 # Graceful shutdown
 docker compose up -d
@@ -327,7 +313,7 @@ docker compose up --scale agent=3
 
 ```bash
 # Test public URL
-curl https://student-app.railway.app/health
+curl.exe https://student-app.railway.app/health
 
 # Check config files
 ls railway.toml || ls render.yaml

@@ -24,14 +24,10 @@ pip install -r requirements.txt
 AGENT_API_KEY=my-secret-key python app.py
 
 # Test với key hợp lệ
-curl -H "X-API-Key: my-secret-key" http://localhost:8000/ask \
-     -X POST -H "Content-Type: application/json" \
-     -d '{"question": "hello"}'
+curl.exe -X POST http://localhost:8000/ask -H "X-API-Key: my-secret-key" -H "Content-Type: application/json" -d '{"question": "hello"}'
 
 # Test không có key → 401
-curl http://localhost:8000/ask -X POST \
-     -H "Content-Type: application/json" \
-     -d '{"question": "hello"}'
+curl.exe -X POST http://localhost:8000/ask -H "Content-Type: application/json" -d '{"question": "hello"}'
 ```
 
 ---
@@ -55,15 +51,10 @@ pip install -r requirements.txt
 python app.py
 
 # Lấy JWT token
-curl -X POST http://localhost:8000/auth/token \
-     -H "Content-Type: application/json" \
-     -d '{"username": "student", "password": "demo123"}'
+curl.exe -X POST http://localhost:8000/auth/token -H "Content-Type: application/json" -d '{"username": "student", "password": "demo123"}'
 
 # Dùng token
-curl -H "Authorization: Bearer <token>" \
-     http://localhost:8000/ask \
-     -X POST -H "Content-Type: application/json" \
-     -d '{"question": "what is docker?"}'
+curl.exe -X POST http://localhost:8000/ask -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"question": "what is docker?"}'
 
 # Test rate limit: spam 20 requests liên tiếp
 python test_advanced.py --test rate-limit

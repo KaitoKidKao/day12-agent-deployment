@@ -84,6 +84,8 @@ def health():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
-    print(f"API Key: {API_KEY}")
-    print(f"Test: curl -H 'X-API-Key: {API_KEY}' http://localhost:{port}/ask?question=hello")
+    # ⚠️ SECURITY: Không bao giờ in toàn bộ key ra console/logs
+    masked_key = f"{API_KEY[:6]}...{API_KEY[-4:]}" if len(API_KEY) > 10 else "****"
+    print(f"API Key loaded: {masked_key}")
+    print(f"Test: curl -H 'X-API-Key: {API_KEY[:4]}...' http://localhost:{port}/ask?question=hello")
     uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)

@@ -54,9 +54,7 @@ python app.py
 
 In another terminal:
 ```bash
-curl http://localhost:8000/ask -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Hello"}'
+curl.exe -X POST "http://localhost:8000/ask" -H "Content-Type: application/json" -d '{"question": "Hello"}'
 ```
 
 **Expected:** You get a response! 🎉
@@ -77,9 +75,7 @@ docker run -p 8000:8000 my-agent
 
 Test again:
 ```bash
-curl http://localhost:8000/ask -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"question": "What is Docker?"}'
+curl.exe -X POST "http://localhost:8000/ask" -H "Content-Type: application/json" -d '{"question": "What is Docker?"}'
 ```
 
 **Expected:** Same response, but now in a container! 🐳
@@ -111,9 +107,7 @@ railway domain
 
 Test it:
 ```bash
-curl https://your-agent.railway.app/ask -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Am I on the cloud?"}'
+curl.exe -X POST "https://your-agent.railway.app/ask" -H "Content-Type: application/json" -d '{"question": "Am I on the cloud?"}'
 ```
 
 **Expected:** Response from the cloud! 🌐
@@ -132,18 +126,13 @@ python app.py
 
 Test without key (should fail):
 ```bash
-curl http://localhost:8000/ask -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Hello"}'
+curl.exe -X POST "http://localhost:8000/ask" -H "Content-Type: application/json" -d '{"question": "Hello"}'
 # Expected: 401 Unauthorized
 ```
 
 Test with key (should work):
 ```bash
-curl http://localhost:8000/ask -X POST \
-  -H "X-API-Key: my-secret-key" \
-  -H "Content-Type: application/json" \
-  -d '{"question": "Hello"}'
+curl.exe -X POST "http://localhost:8000/ask" -H "X-API-Key: my-secret-key" -H "Content-Type: application/json" -d '{"question": "Hello"}'
 # Expected: 200 OK
 ```
 
