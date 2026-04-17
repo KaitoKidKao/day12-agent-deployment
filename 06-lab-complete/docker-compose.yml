@@ -1,33 +1,52 @@
 version: "3.9"
 
 services:
+  # Load Balancer
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - agent
+    networks:
+      - agent-net
+
+  # AI Agent Service
   agent:
     build: .
-    ports:
-      - "8000:8000"
+    # Note: No host port required for agent, traffic comes via Nginx
     environment:
-      - ENVIRONMENT=staging
-      - APP_NAME=Production AI Agent
+      - ENVIRONMENT=production
+      - HOST=0.0.0.0
+      - PORT=8000
       - REDIS_URL=redis://redis:6379/0
-    env_file:
-      - .env.local
+      - AGENT_API_KEY=lab-secret-key-123
+      - JWT_SECRET=super-secret-key-for-lab-only
+      - RATE_LIMIT_PER_MINUTE=60
+      - DAILY_BUDGET_USD=10.0
+    deploy:
+      replicas: 3
     depends_on:
       redis:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c",
-             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
+    networks:
+      - agent-net
     restart: unless-stopped
 
+  # Distributed Cache / Storage
   redis:
     image: redis:7-alpine
     command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
+      interval: 5s
       timeout: 3s
-      retries: 3
+      retries: 5
+    networks:
+      - agent-net
+
+networks:
+  agent-net:
+    driver: bridge

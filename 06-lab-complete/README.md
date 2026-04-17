@@ -50,14 +50,13 @@ cp .env.example .env
 docker compose up
 
 # 3. Test
-curl http://localhost/health
+curl.exe http://localhost/health
 
 # 4. Lấy API key từ .env, test endpoint
-API_KEY=$(grep AGENT_API_KEY .env | cut -d= -f2)
-curl -H "X-API-Key: $API_KEY" \
-     -X POST http://localhost/ask \
-     -H "Content-Type: application/json" \
-     -d '{"question": "What is deployment?"}'
+# Trên Bash: API_KEY=$(grep AGENT_API_KEY .env | cut -d= -f2)
+# Trên PowerShell: $API_KEY = (Select-String -Path .env -Pattern "AGENT_API_KEY").Line.Split("=")[1]
+
+curl.exe -X POST http://localhost/ask -H "X-API-Key: lab-secret-key-123" -H "Content-Type: application/json" -d '{"question": "What is deployment?"}'
 ```
 
 ---
