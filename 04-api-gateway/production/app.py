@@ -13,17 +13,10 @@ Chạy:
     python app.py
 
 Lấy token:
-    (Invoke-RestMethod -Uri "http://localhost:8000/auth/token" 
-        -Method Post -Body '{"username":"student","password":"demo123"}' 
-        -ContentType "application/json").access_token
-
+    (curl.exe -X POST "http://localhost:8000/auth/token" --get --data-urlencode "username=student" --data-urlencode "password=demo123").access_token
 
 Dùng token:
-    (Invoke-RestMethod -Uri "http://localhost:8000/ask" `
-        -Method Post `
-        -Body '{"question":"what is docker?"}' `
-        -ContentType "application/json" `
-        -Headers @{"Authorization" = "Bearer $TOKEN"}).access_token
+    curl.exe -X POST "http://localhost:8000/ask" -H "Authorization: Bearer $TOKEN" --get --data-urlencode "question=what is docker?"
 """
 import os
 import time
@@ -91,6 +84,7 @@ async def security_headers(request: Request, call_next):
 # ──────────────────────────────────────────────────────────
 # Request/Response Models
 # ──────────────────────────────────────────────────────────
+# Models kept for documentation but parameters replaced by Query Parameters for PowerShell compatibility
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=1000)
 
@@ -105,12 +99,12 @@ class LoginRequest(BaseModel):
 # ──────────────────────────────────────────────────────────
 
 @app.post("/auth/token")
-def login(body: LoginRequest):
+def login(username: str, password: str):
     """
     Public endpoint. Đổi username/password lấy JWT token.
     Token hết hạn sau 60 phút.
     """
-    user = authenticate_user(body.username, body.password)
+    user = authenticate_user(username, password)
     token = create_token(user["username"], user["role"])
     return {
         "access_token": token,
@@ -126,7 +120,7 @@ def login(body: LoginRequest):
 
 @app.post("/ask")
 async def ask_agent(
-    body: AskRequest,
+    question: str,
     request: Request,
     user: dict = Depends(verify_token),  # ✅ JWT required
 ):
@@ -147,15 +141,15 @@ async def ask_agent(
     cost_guard.check_budget(username)
 
     # Gọi LLM (mock)
-    response_text = ask(body.question)
+    response_text = ask(question)
 
     # ✅ Ghi nhận usage (mock token count)
-    input_tokens = len(body.question.split()) * 2
+    input_tokens = len(question.split()) * 2
     output_tokens = len(response_text.split()) * 2
     usage = cost_guard.record_usage(username, input_tokens, output_tokens)
 
     return {
-        "question": body.question,
+        "question": question,
         "answer": response_text,
         "usage": {
             "requests_remaining": rate_info["remaining"],

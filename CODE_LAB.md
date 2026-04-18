@@ -87,7 +87,7 @@ python app.py
 
 Test:
 ```bash
-curl.exe -X POST http://localhost:8000/ask -H "Content-Type: application/json" -d '{"question": "Hello"}'
+curl.exe -X POST "http://localhost:8000/ask" --get --data-urlencode "question=Hello"
 ```
 
 **Quan sát:** Nó chạy! Nhưng có production-ready không?
@@ -155,8 +155,9 @@ docker build -f 02-docker/develop/Dockerfile -t my-agent:develop .
 # Run container
 docker run -p 8000:8000 my-agent:develop
 
-# Test
-curl.exe -X POST http://localhost:8000/ask -H "Content-Type: application/json" -d '{"question": "What is Docker?"}'
+# Test:
+```bash
+curl.exe -X POST "http://localhost:8000/ask" --get --data-urlencode "question=What is Docker?"
 ```
 
 **Quan sát:** Image size là bao nhiêu?
@@ -196,8 +197,9 @@ Test:
 # Health check
 curl.exe http://localhost/health
 
-# Agent endpoint
-curl.exe -X POST http://localhost/ask -H "Content-Type: application/json" -d '{"question": "Explain microservices"}'
+# Test app:
+```bash
+curl.exe -X POST "http://localhost/ask" --get --data-urlencode "question=Explain microservices"
 ```
 
 ###  Checkpoint 2
@@ -271,8 +273,9 @@ Test:
 # Health check
 curl.exe http://student-agent-domain/health
 
-# Agent endpoint
-curl.exe -X POST http://studen-agent-domain/ask -H "Content-Type: application/json" -d '{"question": "Hello Cloud"}'
+# Kiểm tra:
+```bash
+curl.exe -X POST "https://your-agent-domain/ask" --get --data-urlencode "question=Hello Cloud"
 ```
 
 ###  Exercise 3.2: Deploy Render (15 phút)
@@ -338,11 +341,14 @@ Test:
 ```bash
 python app.py
 
-#  Không có key
-curl.exe -X POST http://localhost:8000/ask -H "Content-Type: application/json" -d '{"question": "Hello"}'
+#1. Test không key (phải lỗi):
+```bash
+curl.exe -X POST "http://localhost:8000/ask" --get --data-urlencode "question=Hello"
+```
 
-#  Có key
-curl.exe -X POST http://localhost:8000/ask -H "X-API-Key: secret-key-123" -H "Content-Type: application/json" -d '{"question": "Hello"}'
+2. Test với key (phải chạy):
+```bash
+curl.exe -X POST "http://localhost:8000/ask" -H "X-API-Key: secret-key-123" --get --data-urlencode "question=Hello"
 ```
 
 ###  Exercise 4.2: JWT authentication (Advanced)
@@ -354,17 +360,13 @@ cd ../production
 **Nhiệm vụ:** 
 1. Đọc `auth.py` — hiểu JWT flow
 2. Lấy token:
-```bash
-python app.py
-
-curl.exe -X POST http://localhost:8000/token -H "Content-Type: application/json" -d '{"username": "admin", "password": "secret"}'
-```
-
-3. Dùng token để gọi API:
-```bash
-TOKEN="<token_từ_bước_2>"
-curl.exe -X POST http://localhost:8000/ask -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"question": "Explain JWT"}'
-```
+   ```bash
+   curl.exe -X POST "http://localhost:8000/auth/token" --get --data-urlencode "username=student" --data-urlencode "password=demo123"
+   ```
+3. Gọi API:
+   ```bash
+   curl.exe -X POST "http://localhost:8000/ask" -H "Authorization: Bearer <token>" --get --data-urlencode "question=what is docker?"
+   ```
 
 ###  Exercise 4.3: Rate limiting
 
@@ -376,10 +378,9 @@ curl.exe -X POST http://localhost:8000/ask -H "Authorization: Bearer $TOKEN" -H 
 Test:
 ```bash
 # Gọi liên tục 20 lần
-for i in {1..20}; do
-  curl.exe -X POST http://localhost:8000/ask -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "{\"question\": \"Test $i\"}"
-  echo ""
-done
+for ($i=1; $i -le 20; $i++) {
+  curl.exe -X POST "http://localhost:8000/ask" -H "Authorization: Bearer $TOKEN" --get --data-urlencode "question=Test $i"
+}
 ```
 
 Quan sát response khi hit limit.
@@ -520,8 +521,8 @@ Test:
 python app.py &
 PID=$!
 
-# Gửi request
-curl.exe -X POST http://localhost:8000/ask -H "Content-Type: application/json" -d '{"question": "Long task"}' &
+#1. Gửi command nặng:
+curl.exe -X POST "http://localhost:8000/ask" --get --data-urlencode "question=Long task" &
 
 # Ngay lập tức kill
 kill -TERM $PID
@@ -575,9 +576,9 @@ Quan sát:
 Test:
 ```bash
 # Gọi 10 requests
-for i in {1..10}; do
-  curl.exe -X POST http://localhost/ask -H "Content-Type: application/json" -d "{\"question\": \"Request $i\"}"
-done
+for ($i=1; $i -le 10; $i++) {
+  curl.exe -X POST "http://localhost/ask" --get --data-urlencode "question=Request $i"
+}
 
 # Check logs — requests được phân tán
 docker compose logs agent
@@ -804,7 +805,7 @@ docker compose up --scale agent=3
 # Test all endpoints
 curl.exe http://localhost/health
 curl.exe http://localhost/ready
-curl.exe -X POST http://localhost/ask -H "X-API-Key: secret" -H "Content-Type: application/json" -d '{"question": "Hello", "user_id": "user1"}'
+curl.exe -X POST "http://localhost/ask" -H "X-API-Key: secret" --get --data-urlencode "question=Hello" --data-urlencode "user_id=user1"
 ```
 
 #### Step 10: Deploy (10 phút)

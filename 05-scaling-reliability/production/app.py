@@ -116,9 +116,7 @@ app.add_middleware(
 # Models
 # ──────────────────────────────────────────────────────────
 
-class ChatRequest(BaseModel):
-    question: str
-    session_id: str | None = None  # None = tạo session mới
+# ChatRequest removed for PowerShell compatibility (using Query Parameters)
 
 
 # ──────────────────────────────────────────────────────────
@@ -126,33 +124,33 @@ class ChatRequest(BaseModel):
 # ──────────────────────────────────────────────────────────
 
 @app.post("/chat")
-async def chat(body: ChatRequest):
+async def chat(question: str, session_id: str | None = None):
     """
     Multi-turn conversation với session management.
 
     Gửi session_id trong các request tiếp theo để tiếp tục cuộc trò chuyện.
-    Agent có thể chạy trên bất kỳ instance nào — state trong Redis.
+    Sử dụng Query Parameters để tương thích tuyệt đối với PowerShell curl.
     """
     # Tạo hoặc dùng session hiện có
-    session_id = body.session_id or str(uuid.uuid4())
+    session_id = session_id or str(uuid.uuid4())
 
     # Thêm câu hỏi vào history
-    append_to_history(session_id, "user", body.question)
+    append_to_history(session_id, "user", question)
 
     # Gọi LLM với context (trong mock, ta chỉ dùng câu hỏi hiện tại)
     session = load_session(session_id)
     history = session.get("history", [])
-    answer = ask(body.question)
+    answer = ask(question)
 
     # Lưu response vào history
     append_to_history(session_id, "assistant", answer)
 
     return {
         "session_id": session_id,
-        "question": body.question,
+        "question": question,
         "answer": answer,
         "turn": len([m for m in history if m["role"] == "user"]) + 1,
-        "served_by": INSTANCE_ID,  # ← thấy rõ bất kỳ instance nào cũng serve được
+        "served_by": INSTANCE_ID,
         "storage": "redis" if USE_REDIS else "in-memory",
     }
 

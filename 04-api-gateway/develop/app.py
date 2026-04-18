@@ -9,15 +9,10 @@ Chạy:
 
 Test:
     # Có key → 200
-    curl -H "X-API-Key: my-secret-key" -X POST \\
-         -H "Content-Type: application/json" \\
-         -d '{"question":"hello"}' \\
-         http://localhost:8000/ask
+    curl.exe -X POST "http://localhost:8000/ask" -H "X-API-Key: my-secret-key" --get --data-urlencode "question=hello"
 
     # Không có key → 401
-    curl -X POST -H "Content-Type: application/json" \\
-         -d '{"question":"hello"}' \\
-         http://localhost:8000/ask
+    curl.exe -X POST "http://localhost:8000/ask" --get --data-urlencode "question=hello"
 """
 import os
 
@@ -87,5 +82,5 @@ if __name__ == "__main__":
     # ⚠️ SECURITY: Không bao giờ in toàn bộ key ra console/logs
     masked_key = f"{API_KEY[:6]}...{API_KEY[-4:]}" if len(API_KEY) > 10 else "****"
     print(f"API Key loaded: {masked_key}")
-    print(f"Test: curl -H 'X-API-Key: {API_KEY[:4]}...' http://localhost:{port}/ask?question=hello")
+    print(f"Test: curl.exe -X POST \"http://localhost:{port}/ask\" -H 'X-API-Key: {API_KEY[:4]}...' --get --data-urlencode 'question=hello'")
     uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)

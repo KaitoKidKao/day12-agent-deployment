@@ -28,7 +28,7 @@ curl.exe -X GET "https://day12-nguyentricao-production.up.railway.app/ready"
 
 ### 4. AI Agent Test (Auth Required)
 ```bash
-curl.exe -X POST "https://day12-nguyentricao-production.up.railway.app/ask" -H "X-API-Key: dev-key-change-me" -H "Content-Type: application/json" -d "{\"user_id\": \"test-user\", \"question\": \"Hello, what is your version?\"}"
+curl.exe -X POST "https://day12-nguyentricao-production.up.railway.app/ask" -H "X-API-Key: dev-key-change-me" --get --data-urlencode "question=Hello, what is your version?" --data-urlencode "user_id=test-user"
 ```
 
 ### 5. Metrics & Budget

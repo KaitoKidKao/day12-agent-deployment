@@ -515,11 +515,11 @@ venv/
 # GET request
 curl.exe http://localhost:8000/health
 
-# POST with JSON (PowerShell safe syntax)
-curl.exe -X POST http://localhost:8000/ask -H "Content-Type: application/json" -H "X-API-Key: secret" -d '{"question": "Hello"}'
+# POST with query parameters (PowerShell safe)
+curl.exe -X POST "http://localhost:8000/ask" --get --data-urlencode "question=Hello" -H "X-API-Key: secret"
 
 # With Bearer token
-curl.exe -X POST http://localhost:8000/ask -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"question": "Hello"}'
+curl.exe -X POST "http://localhost:8000/ask" -H "Authorization: Bearer <token>" --get --data-urlencode "question=Hello"
 
 # Save response to file
 curl.exe http://localhost:8000/ask -o response.json

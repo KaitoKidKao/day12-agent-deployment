@@ -16,8 +16,7 @@ app = FastAPI(title="Agent on Railway", version="1.0.0")
 START_TIME = time.time()
 
 
-class Question(BaseModel):
-    question: str
+# Removed Question model to support Query Parameters
 
 
 app.add_middleware(
@@ -38,8 +37,7 @@ def root():
 
 
 @app.post("/ask")
-async def ask_agent(data: Question):
-    question = data.question
+async def ask_agent(question: str):
     if not question:
         raise HTTPException(422, "question required")
     return {

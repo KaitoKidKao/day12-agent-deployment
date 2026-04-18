@@ -117,13 +117,13 @@ Railway / Render / Cloud Run
 
 ### Health Check
 ```bash
-curl.exe https://your-agent.railway.app/health
+curl.exe "https://your-agent.railway.app/health"
 # Expected: {"status": "ok"}
 ```
 
 ### API Test (with authentication)
 ```bash
-curl.exe -X POST https://your-agent.railway.app/ask -H "X-API-Key: YOUR_KEY" -H "Content-Type: application/json" -d '{"user_id": "test", "question": "Hello"}'
+curl.exe -X POST "https://your-agent.railway.app/ask" -H "X-API-Key: YOUR_KEY" --get --data-urlencode "question=Hello" --data-urlencode "user_id=test"
 ```
 
 ## Environment Variables Set
@@ -159,20 +159,20 @@ Before submitting, verify your deployment:
 
 ```bash
 # 1. Health check
-curl.exe https://your-app.railway.app/health
+curl.exe "https://your-app.railway.app/health"
 
 # 2. Authentication required
-curl.exe https://your-app.railway.app/ask
-# Should return 401
+curl.exe "https://your-app.railway.app/ask"
+# Should return 401 (Missing parameters or auth)
 
 # 3. With API key works
-curl.exe -X POST https://your-app.railway.app/ask -H "X-API-Key: YOUR_KEY" -H "Content-Type: application/json" -d '{"user_id":"test","question":"Hello"}'
+curl.exe -X POST "https://your-app.railway.app/ask" -H "X-API-Key: YOUR_KEY" --get --data-urlencode "question=Hello" --data-urlencode "user_id=test"
 # Should return 200
 
 # 4. Rate limiting
-for i in {1..15}; do 
-  curl.exe -X POST https://your-app.railway.app/ask -H "X-API-Key: YOUR_KEY" -H "Content-Type: application/json" -d '{"user_id":"test","question":"test"}'
-done
+for ($i=1; $i -le 15; $i++) { 
+  curl.exe -X POST "https://your-app.railway.app/ask" -H "X-API-Key: YOUR_KEY" --get --data-urlencode "question=test" --data-urlencode "user_id=test"
+}
 # Should eventually return 429
 ```
 

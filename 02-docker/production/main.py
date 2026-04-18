@@ -24,8 +24,7 @@ START_TIME = time.time()
 is_ready = False
 
 
-class Question(BaseModel):
-    question: str
+# Removed Question model to support Query Parameters
 
 
 @asynccontextmanager
@@ -60,8 +59,7 @@ def root():
 
 
 @app.post("/ask")
-async def ask_agent(data: Question):
-    question = data.question
+async def ask_agent(question: str):
     if not question:
         raise HTTPException(422, "question required")
     logger.info(json.dumps({"event": "request", "q_len": len(question)}))

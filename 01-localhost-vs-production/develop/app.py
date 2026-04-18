@@ -27,8 +27,14 @@ def home():
     return {"message": "Hello! Agent is running on my machine :)"}
 
 
+from pydantic import BaseModel
+
+class AskRequest(BaseModel):
+    question: str
+
 @app.post("/ask")
-def ask_agent(question: str):
+def ask_agent(payload: AskRequest):
+    question = payload.question
     # ❌ Vấn đề 3: Print thay vì proper logging
     print(f"[DEBUG] Got question: {question}")
     print(f"[DEBUG] Using key: {OPENAI_API_KEY}")  # ❌ log ra secret!

@@ -97,17 +97,14 @@ def root():
 
 
 @app.post("/ask")
-async def ask_agent(request: Request):
-    body = await request.json()
-    question = body.get("question", "")
-
+async def ask_agent(request: Request, question: str):
     if not question:
-        raise HTTPException(status_code=422, detail="question field is required")
+        raise HTTPException(status_code=422, detail="question query parameter is required")
 
     # ✅ Structured logging — KHÔNG log secrets
     logger.info(json.dumps({
         "event": "agent_request",
-        "question_length": len(question),
+        "question": question,
         "client_ip": request.client.host,
     }))
 
@@ -115,13 +112,14 @@ async def ask_agent(request: Request):
 
     logger.info(json.dumps({
         "event": "agent_response",
-        "response_length": len(response),
+        "answer": response,
     }))
 
     return {
         "question": question,
         "answer": response,
         "model": settings.llm_model,
+        "environment": settings.environment
     }
 
 
